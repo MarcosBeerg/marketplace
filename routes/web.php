@@ -11,10 +11,7 @@
 |
 */
 
-Route::get('/', function () {
-    $helloWorld = 'HelloWorld';
-    return view('welcome',compact('helloWorld'));
-})->name('home');
+Route::get('/', 'HomeController@index')->name('home');
 Route::get('/model', function (){
     //$products = \App\Product::all();
 
