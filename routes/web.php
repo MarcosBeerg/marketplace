@@ -14,6 +14,11 @@
 Route::get('/', 'HomeController@index')->name('home');
 Route::get('/product/{slug}', 'HomeController@single')->name('product.single');
 
+Route::prefix('cart')->name('cart.')->group(function(){
+
+        Route::post('add','CartController@add')->name('add');
+});
+
 Route::get('/model', function (){
     //$products = \App\Product::all();
 
