@@ -16,6 +16,7 @@
                 <div class="col-md-12 form-group">
                     <label>Número do Cartão <span class="brand"></span></label>
                      <input type="text" class="form-control" name="card_number">
+                     <input type="hidden" name="card_brand">
                 </div>
             </div>
 
@@ -41,7 +42,7 @@
                     <div class="col-md-12 installments form-group"></div>
                 </div>
 
-                <button class="btn btn-success btn-lg">Efetuar Pagamento</button>
+                <button class="btn btn-success btn-lg processCheckout">Efetuar Pagamento</button>
 
         </form>
         </div>
@@ -68,6 +69,7 @@
                         success: function(res){
                             let imgFlag = `<img src="https://stc.pagseguro.uol.com.br/public/img/payment-methods-flags/68x30/${res.brand.name}.png">`;
                             spanBrand.innerHTML = imgFlag;
+                            document.querySelector('input[name=card_brand]').value = res.brand.name;
 
                             getInstallments(40, res.brand.name);
                         },
@@ -80,6 +82,27 @@
                 });
             }
         });
+
+        let submitButton = document.querySelector('button.processCheckout');
+
+        submitButton.addEventListener('click', function(event){
+
+            event.preventDefault();
+
+            PagSeguroDirectPayment.createCardToken({
+                cardNumber: document.querySelector('input[name=card_number]').value,
+                brand: document.querySelector('input[name=card_brand]').value,
+                cvv: document.querySelector('input[name=card_cvv]').value,
+                expirationMonth: document.querySelector('input[name=card_month]').value,
+                expirationYear: document.querySelector('input[name=card_year]').value,
+                success: function(res){
+                    console.log(res);
+                }
+            });
+        });
+
+
+
 
         function getInstallments(amount, brand){
             PagSeguroDirectPayment.getInstallments({
