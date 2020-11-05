@@ -23,6 +23,7 @@ Route::prefix('cart')->name('cart.')->group(function(){
 });
 Route::prefix('checkout')->name('checkout.')->group(function(){
     Route::get('/','CheckoutController@index')->name('index');
+    Route::post('/proccess','CheckoutController@proccess')->name('proccess');
 });
 
 Route::get('/model', function (){
