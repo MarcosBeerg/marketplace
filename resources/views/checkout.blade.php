@@ -14,7 +14,7 @@
         <form action="" method="post">
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <label>Número do Cartão</label>
+                    <label>Número do Cartão <span class="brand"></span></label>
                      <input type="text" class="form-control" name="card_number">
                 </div>
             </div>
@@ -37,6 +37,8 @@
                         <label>Código de Segurança</label>
                         <input type="text" class="form-control" name="card_cvv">
                     </div>
+
+                    <div class="col-md-12 installments form-group"></div>
                 </div>
 
                 <button class="btn btn-success btn-lg">Efetuar Pagamento</button>
@@ -57,22 +59,60 @@
 
     <script>
         let  cardNumber = document.querySelector('input[name=card_number]');
+        let spanBrand = document.querySelector('span.brand');
         cardNumber.addEventListener('keyup', function(){
             if(cardNumber.value.length >= 6)
             {
                 PagSeguroDirectPayment.getBrand({
                         cardBin:cardNumber.value.substr(0, 6),
                         success: function(res){
-                            console.log(res);
+                            let imgFlag = `<img src="https://stc.pagseguro.uol.com.br/public/img/payment-methods-flags/68x30/${res.brand.name}.png">`;
+                            spanBrand.innerHTML = imgFlag;
+
+                            getInstallments(40, res.brand.name);
                         },
                         error: function(err){
                             console.log(err);
                         },
                         complete: function(res){
-                            console.log('Complete:', res);
+                            //console.log('Complete:', res);
                         }
                 });
             }
         });
+
+        function getInstallments(amount, brand){
+            PagSeguroDirectPayment.getInstallments({
+                amount: amount,
+                brand: brand,
+                maxInstallmentNoInterest: 0,
+                success: function(res){
+                    let selectInstallments = drawSelectInstallments(res.installments[brand]);
+                    document.querySelector('div.installments').innerHTML = selectInstallments;
+                    console.log(res);
+                },
+                error: function(err){
+
+                },
+                complete: function(res){
+
+                },
+            })
+        }
+
+        function drawSelectInstallments(installments) {
+		let select = '<label>Opções de Parcelamento:</label>';
+
+		select += '<select class="form-control">';
+
+		for(let l of installments) {
+		    select += `<option value="${l.quantity}|${l.installmentAmount}">${l.quantity}x de ${l.installmentAmount} - Total fica ${l.totalAmount}</option>`;
+		}
+
+
+		select += '</select>';
+
+		return select;
+	} 
     </script>
 @endsection
