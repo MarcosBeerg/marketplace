@@ -13,9 +13,13 @@ class CheckoutController extends Controller
             return redirect()->route('login');
         }
         $this->makePagSeguroSession();
-        var_dump(session()->get('pagseguro_session_code'));
+        
+        $cartItems = array_map(function($line){
+            return $line['amount'] * $line ['price'];
+        },session()->get('cart'));
+        $cartItems = array_sum($cartItems);
 
-        return view('checkout');
+        return view('checkout', compact('cartItems'));
     }
     public function proccess(Request $request)
     {   
@@ -88,11 +92,11 @@ class CheckoutController extends Controller
 
         $creditCard->setToken($dataPost['card_token']);
         list($quantity, $installmentAmount) = explode('|', $dataPost['installment']);
-
+        $installmentAmount = number_format($installmentAmount, 2, '.', '');
         $creditCard->setInstallment()->withParameters($quantity, $installmentAmount);
 
         $creditCard->setHolder()->setBirthdate('01/10/1979');
-        $creditCard->setHolder()->setName($dataPost['card_name']); // Equals in Credit Card
+        $creditCard->setHolder()->setName($dataPost['card_name']); 
         $creditCard->setHolder()->setPhone()->withParameters(
             11,
             56273440
@@ -110,7 +114,7 @@ class CheckoutController extends Controller
         );
 
         var_dump($result);
-        
+
      }
 
     private function makePagSeguroSession()
